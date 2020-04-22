@@ -264,9 +264,10 @@ public class MainService implements ShipService {
         }
         if (ship.getUsed() != null) {
             oldShip.setUsed(ship.getUsed());
-            if (ship.getRating() != null) {
         }
-            oldShip.setRating(ship.getRating());
+        Double rating=calculateRating(oldShip);
+        if (rating!=null) {
+            oldShip.setRating(rating);
         }
         return shipRepository.save(oldShip);
     }

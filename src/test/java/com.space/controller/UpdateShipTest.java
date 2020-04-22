@@ -144,24 +144,19 @@ public class UpdateShipTest extends AbstractTest {
     @Test
     public void updateShipWithDataTest1() throws Exception {
         ShipInfoTest shipInfoTest = testsHelper.getShipInfosById(14);
-
         String newName = "TestName";
         boolean newIsUsed = false;
         double newSpeed = 0.5;
         int newCrewSize = 2500;
-
         ShipInfoTest expected = new ShipInfoTest(shipInfoTest.id, newName, shipInfoTest.planet, shipInfoTest.shipType, shipInfoTest.prodDate,
                 newIsUsed, newSpeed, newCrewSize, 6.67);
-
         ResultActions resultActions = mockMvc.perform(post("/rest/ships/" + shipInfoTest.id)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .content(String.format(TestsHelper.JSON_SKELETON, newName, String.valueOf(newIsUsed), String.valueOf(newSpeed), String.valueOf(newCrewSize))))
                 .andExpect(status().isOk());
-
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
-
         assertEquals("При запросе POST /rest/ships/{id} корабль должен обновляться и рейтинг пересчитываться", expected, actual);
     }
 
