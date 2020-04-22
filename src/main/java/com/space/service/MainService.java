@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.NestedServletException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -53,22 +52,13 @@ public class MainService implements ShipService {
     }
 
     private void checkShipParameters(Ship ship) {
-        if (ship.getName() == null || ship.getName().isEmpty() || ship.getName().length() > 50) {
-            throw new BadRequestException("Ship name is incorrect");
-        }
+        String name = ship.getName();
+        checkName(name);
         String planet = ship.getPlanet();
-        if (planet == null) {
-            throw new BadRequestException("Planet is incorrect");
-        }
-        if (planet.isEmpty()) {
-            throw new BadRequestException("Planet is incorrect");
-        }
-        if (planet.length() > 50) {
-            throw new BadRequestException("Planet is incorrect");
-        }
+        checkPlanet(planet);
         ShipType type = ship.getShipType();
-        if (type == null) try {
-            throw new ShipTypeException("Ship type is incorrect");
+        try {
+            checkShipType(type);
         } catch (ShipTypeException e) {
             e.printStackTrace();
         }
@@ -76,20 +66,50 @@ public class MainService implements ShipService {
         Date prodDate = ship.getProdDate();
         cal.setTime(ship.getProdDate());
         int year = cal.get(Calendar.YEAR);
-        if (year < 2800 || year > 3019 || prodDate == null) {
-            throw new BadRequestException("Production date is invalid");
-        }
+        checkYear(year, prodDate);
         Boolean isUsed = ship.getUsed();
         if (isUsed == null) {
             isUsed = false;
         }
         Double speed = ship.getSpeed();
+        checkSpeed(speed);
+        Integer crewSize = ship.getCrewSize();
+        checkCrewSize(crewSize);
+    }
+
+    private void checkCrewSize(Integer crewSize) {
+        if (crewSize == null || crewSize < 1 || crewSize > 9999) {
+            throw new BadRequestException("Crew size is invalid");
+        }
+    }
+
+    private void checkSpeed(Double speed) {
         if (speed == null || speed < (0.01) || speed > (0.99)) {
             throw new BadRequestException("Speed is invalid");
         }
-        Integer crewSize = ship.getCrewSize();
-        if (crewSize == null||crewSize < 1 || crewSize > 9999) {
-            throw new BadRequestException("Crew size is invalid");
+    }
+
+    private void checkYear(int year, Date prodDate) {
+        if (year < 2800 || year > 3019 || prodDate == null) {
+            throw new BadRequestException("Production date is invalid");
+        }
+    }
+
+    private void checkShipType(ShipType type) throws ShipTypeException {
+        if (type == null) {
+            throw new ShipTypeException("Ship type is incorrect");
+        }
+    }
+
+    private void checkPlanet(String planet) {
+        if (planet == null || planet.isEmpty() || planet.length() > 50) {
+            throw new BadRequestException("Planet is incorrect");
+        }
+    }
+
+    private void checkName(String name) {
+        if (name == null || name.isEmpty() || name.length() > 50) {
+            throw new BadRequestException("Ship name is incorrect");
         }
     }
 
@@ -231,9 +251,7 @@ public class MainService implements ShipService {
         Ship oldShip = shipRepository.findById(id).get();
         checkShipParameters(oldShip);
         if (ship.getName() != null) {
-            if (ship.getName() == null || ship.getName().isEmpty() || ship.getName().length() > 50) {
-                throw new BadRequestException("Ship name is incorrect");
-            }
+            checkName(ship.getName());
             oldShip.setName(ship.getName());
         }
         if (ship.getPlanet() != null) {
@@ -244,9 +262,7 @@ public class MainService implements ShipService {
             Date prodDate = ship.getProdDate();
             cal.setTime(ship.getProdDate());
             int year = cal.get(Calendar.YEAR);
-            if (year < 2800 || year > 3019 || prodDate == null) {
-                throw new BadRequestException("Production date is invalid");
-            }
+            checkYear(year, prodDate);
             oldShip.setProdDate(ship.getProdDate());
         }
         if (ship.getSpeed() != null) {
@@ -254,9 +270,7 @@ public class MainService implements ShipService {
         }
         if (ship.getCrewSize() != null) {
             Integer crewSize = ship.getCrewSize();
-            if (crewSize == null||crewSize < 1 || crewSize > 9999) {
-                throw new BadRequestException("Crew size is invalid");
-            }
+            checkCrewSize(crewSize);
             oldShip.setCrewSize(ship.getCrewSize());
         }
         if (ship.getShipType() != null) {
@@ -265,8 +279,8 @@ public class MainService implements ShipService {
         if (ship.getUsed() != null) {
             oldShip.setUsed(ship.getUsed());
         }
-        Double rating=calculateRating(oldShip);
-        if (rating!=null) {
+        Double rating = calculateRating(oldShip);
+        if (rating != null) {
             oldShip.setRating(rating);
         }
         return shipRepository.save(oldShip);

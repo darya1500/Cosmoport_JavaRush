@@ -1,6 +1,5 @@
 package com.space.controller;
 
-import com.space.exception.InvalidIDException;
 import com.space.exception.ShipNotFoundException;
 import com.space.model.Ship;
 import com.space.model.ShipType;
@@ -12,8 +11,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.NestedServletException;
-
 import java.util.List;
 
 @RestController
@@ -27,7 +24,6 @@ public class MainController {
     }
 
     @PostMapping(value = "/ships")
-    //@ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Ship addShip(@RequestBody Ship ship) {
         return service.createShip(ship);
@@ -50,8 +46,6 @@ public class MainController {
                                   @RequestParam(value = "order", required = false, defaultValue = "ID") ShipOrder order,
                                   @RequestParam(value = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
                                   @RequestParam(value = "pageSize", required = false, defaultValue = "3") Integer pageSize) {
-
-
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(order.getFieldName()));
 
         return service.gelAllShips(
@@ -106,19 +100,15 @@ public class MainController {
     @ResponseBody
     public Ship getShip(@PathVariable(value = "id") String id) throws ShipNotFoundException {
         Long longId = null;
-
             longId = service.checkAndParseId(id);
-
         return service.getShip(longId);
     }
 
     @PostMapping(value = "/ships/{id}")
-   // @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Ship editShip(@PathVariable(value = "id") String id, @RequestBody Ship ship)  {
         Long longId = null;
             longId = service.checkAndParseId(id);
         return service.editShip(longId, ship);
     }
-
 }
