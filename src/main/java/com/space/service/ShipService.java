@@ -26,7 +26,7 @@ public interface ShipService {
     void deleteById(Long id) throws ShipNotFoundException, NestedServletException;
 
     Long checkAndParseId(String id) throws InvalidIDException;
-
+    
     Specification<Ship> filterByPlanet(String planet);
 
     Specification<Ship> filterByName(String name);
