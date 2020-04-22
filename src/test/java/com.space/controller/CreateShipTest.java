@@ -89,11 +89,13 @@ public class CreateShipTest extends AbstractTest {
     public void createShipIsUsedAbsentTest() throws Exception {
         expected.isUsed = false;
         expected.rating = 12.8;
+
         ResultActions resultActions = mockMvc.perform(post("/rest/ships/")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .content(TestsHelper.NO_IS_USED_JSON))
                 .andExpect(status().isOk());
+
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
         assertEquals("Возвращается не правильный результат при запросе создания корабля без параметра isUsed.", expected, actual);

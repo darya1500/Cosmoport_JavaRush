@@ -42,6 +42,7 @@ public class UpdateShipTest extends AbstractTest {
     @Test
     public void updateShipInvalidNameTest() throws Exception {
         ShipInfoTest shipInfoTest = testsHelper.getShipInfosById(1);
+
         mockMvc.perform(post("/rest/ships/" + shipInfoTest.id)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
@@ -89,14 +90,17 @@ public class UpdateShipTest extends AbstractTest {
     @Test
     public void updateShipWithIdTest() throws Exception {
         ShipInfoTest expected = mapper.readValue(String.format(TestsHelper.NORMAL_JSON_WITH_ID, 5), ShipInfoTest.class);
-        expected.rating = null;
+        expected.rating = 12.8;
+
         ResultActions resultActions = mockMvc.perform(post("/rest/ships/5")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .content(String.format(TestsHelper.NORMAL_JSON_WITH_ID, 8L)))
                 .andExpect(status().isOk());
+
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
+
         assertNotEquals("При запросе POST /rest/ships/{id} поле id не должно обновляться.", 8, actual.id);
         assertEquals("При запросе POST /rest/ships/{id} с id в теле запроса, должны быть обновлены поля, кроме поля id", expected, actual);
     }
@@ -105,13 +109,16 @@ public class UpdateShipTest extends AbstractTest {
     @Test
     public void updateShipEmptyBodyTest() throws Exception {
         ShipInfoTest expected = testsHelper.getShipInfosById(17);
+
         ResultActions resultActions = mockMvc.perform(post("/rest/ships/17")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .content("{}"))
                 .andExpect(status().isOk());
+
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
+
         assertEquals("При запросе POST /rest/ships/{id} с пустым телом запроса, корабль не должен изменяться", expected, actual);
     }
 
@@ -120,13 +127,16 @@ public class UpdateShipTest extends AbstractTest {
     public void updateShipRatingTest() throws Exception {
         ShipInfoTest expected = mapper.readValue(String.format(TestsHelper.NORMAL_JSON_WITH_ID, 23), ShipInfoTest.class);
         expected.rating = 12.8;
+
         ResultActions resultActions = mockMvc.perform(post("/rest/ships/23")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
-                .content(String.format(TestsHelper.NORMAL_JSON_WITH_RATING, "12.8")))
+                .content(String.format(TestsHelper.NORMAL_JSON_WITH_RATING, "9")))
                 .andExpect(status().isOk());
+
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
+
         assertEquals("При запросе POST /rest/ships/{id} с rating в теле запроса, должны быть обновлены поля, кроме поля rating", expected, actual);
     }
 
@@ -141,7 +151,7 @@ public class UpdateShipTest extends AbstractTest {
         int newCrewSize = 2500;
 
         ShipInfoTest expected = new ShipInfoTest(shipInfoTest.id, newName, shipInfoTest.planet, shipInfoTest.shipType, shipInfoTest.prodDate,
-                newIsUsed, newSpeed, newCrewSize, null);
+                newIsUsed, newSpeed, newCrewSize, 6.67);
 
         ResultActions resultActions = mockMvc.perform(post("/rest/ships/" + shipInfoTest.id)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -159,18 +169,23 @@ public class UpdateShipTest extends AbstractTest {
     @Test
     public void updateShipWithDataTest2() throws Exception {
         ShipInfoTest shipInfoTest = testsHelper.getShipInfosById(32);
+
         String newPlanet = "TestName";
         ShipType newShipType = ShipType.MILITARY;
         long newProdDate = 32556844329665L;
+
         ShipInfoTest expected = new ShipInfoTest(shipInfoTest.id, shipInfoTest.name, newPlanet, ShipType.MILITARY, 32556844329665L,
-                shipInfoTest.isUsed, shipInfoTest.speed, shipInfoTest.crewSize, 6.74);
+                shipInfoTest.isUsed, shipInfoTest.speed, shipInfoTest.crewSize, 2.48);
+
         ResultActions resultActions = mockMvc.perform(post("/rest/ships/" + shipInfoTest.id)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .content(String.format(TestsHelper.JSON_SKELETON_2, newPlanet, String.valueOf(newShipType), String.valueOf(newProdDate))))
                 .andExpect(status().isOk());
+
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
+
         assertEquals("При запросе POST /rest/ships/{id} корабль должен обновляться и рейтинг пересчитываться", expected, actual);
     }
 }

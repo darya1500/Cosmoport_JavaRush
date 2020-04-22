@@ -41,9 +41,11 @@ public class GetShipTest extends AbstractTest {
     @Test
     public void getShipByIdTest() throws Exception {
         ShipInfoTest expected = new TestsHelper().getShipInfosById(14);
+
         ResultActions resultActions = mockMvc.perform(get("/rest/ships/14")
                 .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
+
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ObjectMapper mapper = new ObjectMapper();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
